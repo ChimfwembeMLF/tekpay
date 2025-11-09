@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TekPay Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-item:hover { background-color: #f3f4f6; }
+        .active { background-color: #3b82f6; color: white; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white shadow-lg">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold text-gray-800">TekPay Admin</h1>
+            </div>
+            <nav class="mt-6">
+                <a href="#dashboard" class="sidebar-item active flex items-center px-6 py-3 text-gray-700">
+                    <span class="mr-3">📊</span>
+                    Dashboard
+                </a>
+                <a href="#clients" class="sidebar-item flex items-center px-6 py-3 text-gray-700">
+                    <span class="mr-3">👥</span>
+                    Clients
+                </a>
+                <a href="#payments" class="sidebar-item flex items-center px-6 py-3 text-gray-700">
+                    <span class="mr-3">💳</span>
+                    Payments
+                </a>
+                <a href="#analytics" class="sidebar-item flex items-center px-6 py-3 text-gray-700">
+                    <span class="mr-3">📈</span>
+                    Analytics
+                </a>
+                <a href="#system" class="sidebar-item flex items-center px-6 py-3 text-gray-700">
+                    <span class="mr-3">⚙️</span>
+                    System Health
+                </a>
+                <a href="#alerts" class="sidebar-item flex items-center px-6 py-3 text-gray-700">
+                    <span class="mr-3">🚨</span>
+                    Alerts
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <h2 class="text-xl font-semibold text-gray-800" id="page-title">Dashboard</h2>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-600">Last updated: <span id="last-updated">--</span></span>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="p-6" id="main-content">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-blue-100 rounded-lg">
+                                <span class="text-2xl">💳</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Total Payments</p>
+                                <p class="text-2xl font-bold text-gray-900" id="total-payments">--</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-green-100 rounded-lg">
+                                <span class="text-2xl">✅</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Success Rate</p>
+                                <p class="text-2xl font-bold text-gray-900" id="success-rate">--%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-purple-100 rounded-lg">
+                                <span class="text-2xl">💰</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Total Volume</p>
+                                <p class="text-2xl font-bold text-gray-900" id="total-volume">ZMW --</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-yellow-100 rounded-lg">
+                                <span class="text-2xl">👥</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Active Clients</p>
+                                <p class="text-2xl font-bold text-gray-900" id="active-clients">--</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Payment Trends</h3>
+                        <canvas id="payment-trends-chart" width="400" height="200"></canvas>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">MNO Distribution</h3>
+                        <canvas id="mno-distribution-chart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Top Clients</h3>
+                        <div id="top-clients-list">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Payments</h3>
+                        <div id="recent-payments-list">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Mock data - replace with actual API calls
+        const mockData = {
+            dashboard: {
+                payments: { total: 1247, completed: 1089, failed: 78, pending: 80, successRate: 87.5 },
+                volume: { total: 125750.50, currency: 'ZMW' },
+                consumers: { active: 23 }
+            },
+            trends: [
+                { date: '2024-09-19', count: 45, volume: 4250 },
+                { date: '2024-09-20', count: 52, volume: 5100 },
+                { date: '2024-09-21', count: 38, volume: 3800 },
+                { date: '2024-09-22', count: 67, volume: 6200 },
+                { date: '2024-09-23', count: 49, volume: 4700 },
+                { date: '2024-09-24', count: 58, volume: 5500 },
+                { date: '2024-09-25', count: 23, volume: 2150 }
+            ],
+            topClients: [
+                { name: 'Acme E-commerce', volume: 25000, payments: 156 },
+                { name: 'ZamPay Solutions', volume: 18500, payments: 89 },
+                { name: 'Digital Wallet Co', volume: 15200, payments: 67 }
+            ]
+        };
+
+        // Update dashboard stats
+        function updateDashboard() {
+            document.getElementById('total-payments').textContent = mockData.dashboard.payments.total.toLocaleString();
+            document.getElementById('success-rate').textContent = mockData.dashboard.payments.successRate + '%';
+            document.getElementById('total-volume').textContent = 'ZMW ' + mockData.dashboard.volume.total.toLocaleString();
+            document.getElementById('active-clients').textContent = mockData.dashboard.consumers.active;
+            document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+        }
+
+        // Create payment trends chart
+        function createTrendsChart() {
+            const ctx = document.getElementById('payment-trends-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: mockData.trends.map(t => t.date.split('-')[2]),
+                    datasets: [{
+                        label: 'Payment Count',
+                        data: mockData.trends.map(t => t.count),
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // Create MNO distribution chart
+        function createMNOChart() {
+            const ctx = document.getElementById('mno-distribution-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['MTN', 'Airtel'],
+                    datasets: [{
+                        data: [756, 491],
+                        backgroundColor: ['#ffcc00', '#e60012']
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        // Update top clients list
+        function updateTopClients() {
+            const container = document.getElementById('top-clients-list');
+            container.innerHTML = mockData.topClients.map(client => `
+                <div class="flex justify-between items-center py-2 border-b">
+                    <div>
+                        <p class="font-medium">${client.name}</p>
+                        <p class="text-sm text-gray-600">${client.payments} payments</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-medium">ZMW ${client.volume.toLocaleString()}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize dashboard
+        function initDashboard() {
+            updateDashboard();
+            createTrendsChart();
+            createMNOChart();
+            updateTopClients();
+        }
+
+        // Navigation
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                const page = this.getAttribute('href').substring(1);
+                document.getElementById('page-title').textContent = 
+                    page.charAt(0).toUpperCase() + page.slice(1);
+            });
+        });
+
+        // Auto-refresh every 30 seconds
+        setInterval(updateDashboard, 30000);
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
